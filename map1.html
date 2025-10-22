@@ -1,0 +1,4034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="description" content="Jagadhatri Puja Pandal Guide for Chandan Nagar - Interactive map showing famous pandals, puja schedule, and directions">
+    <meta name="theme-color" content="#8B0000">
+    
+    <!-- iOS Specific -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Jagadhatri Puja">
+    
+    <!-- Android Specific -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    
+    <title>Jagadhatri Puja - Pandal Guide Chandan Nagar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="preload" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" as="script">
+    
+    <!-- Leaflet Routing Machine CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            /* iOS safe area support */
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        :root {
+            --primary-color: #D4AF37;
+            --secondary-color: #8B0000;
+            --accent-color: #FF6347;
+            --dark-red: #6B0000;
+            --light-cream: #FFF8DC;
+            --border-gold: #FFD700;
+            
+            /* iOS safe area insets */
+            --safe-area-top: env(safe-area-inset-top, 0px);
+            --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-area-left: env(safe-area-inset-left, 0px);
+            --safe-area-right: env(safe-area-inset-right, 0px);
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            background: linear-gradient(135deg, #8B0000 0%, #CD5C5C 50%, #8B0000 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            /* Better touch scrolling for iOS */
+            -webkit-overflow-scrolling: touch;
+            /* Prevent bounce effect on iOS */
+            overscroll-behavior-y: contain;
+        }
+
+        /* Decorative background pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(212, 175, 55, 0.05) 35px, rgba(212, 175, 55, 0.05) 70px),
+                repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(255, 215, 0, 0.05) 35px, rgba(255, 215, 0, 0.05) 70px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Decorative mandala patterns */
+        .mandala-decoration {
+            position: fixed;
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .mandala-1 {
+            top: -100px;
+            left: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .mandala-2 {
+            bottom: -150px;
+            right: -150px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(139, 0, 0, 0.9), rgba(107, 0, 0, 0.9));
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 215, 0, 0.3);
+            border: 3px solid var(--primary-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before,
+        .header::after {
+            content: '🕉️';
+            position: absolute;
+            font-size: 5rem;
+            opacity: 0.1;
+            color: var(--primary-color);
+        }
+
+        .header::before {
+            top: -20px;
+            left: 20px;
+        }
+
+        .header::after {
+            bottom: -20px;
+            right: 20px;
+        }
+
+        .header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5), 0 0 40px rgba(255, 215, 0, 0.3);
+            margin-bottom: 10px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header .subtitle {
+            font-size: 1.5rem;
+            color: var(--light-cream);
+            font-weight: 600;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .header .om-symbol {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            display: inline-block;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { 
+                text-shadow: 0 0 20px rgba(212, 175, 55, 0.8), 0 0 30px rgba(255, 215, 0, 0.6);
+                transform: scale(1);
+            }
+            50% { 
+                text-shadow: 0 0 30px rgba(212, 175, 55, 1), 0 0 50px rgba(255, 215, 0, 0.8);
+                transform: scale(1.05);
+            }
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            background: linear-gradient(135deg, rgba(139, 0, 0, 0.95), rgba(107, 0, 0, 0.95));
+            border: 2px solid var(--primary-color);
+            color: var(--light-cream);
+            padding: 15px 35px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            font-family: 'Cinzel', serif;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .nav-tab:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--border-gold));
+            color: var(--dark-red);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.6);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--border-gold));
+            color: var(--dark-red);
+            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.8), inset 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-tab svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards Layout */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, rgba(255, 248, 220, 0.98), rgba(255, 248, 220, 0.95));
+            border: 3px solid var(--primary-color);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 215, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--primary-color), var(--border-gold), var(--primary-color));
+            border-radius: 20px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(212, 175, 55, 0.4);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .pandal-item {
+            background: linear-gradient(135deg, #ffffff, #fffef8);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .pandal-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+            border-color: var(--border-gold);
+        }
+
+        .pandal-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary-color), var(--dark-red));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .pandal-info {
+            flex: 1;
+        }
+
+        .pandal-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--dark-red);
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .pandal-location {
+            font-size: 1.1rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pandal-location::before {
+            content: '📍';
+        }
+
+        #pandalsList {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        #pandalsList::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #pandalsList::-webkit-scrollbar-track {
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 10px;
+        }
+
+        #pandalsList::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary-color), var(--border-gold));
+            border-radius: 10px;
+        }
+
+        #pandalsList::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--border-gold), var(--primary-color));
+        }
+
+        /* Map Container */
+        .map-container {
+            background: linear-gradient(135deg, rgba(255, 248, 220, 0.98), rgba(255, 248, 220, 0.95));
+            border: 3px solid var(--primary-color);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 215, 0, 0.3);
+            position: relative;
+        }
+
+        .map-container h2 {
+            font-family: 'Cinzel', serif;
+            color: var(--dark-red);
+            margin-bottom: 20px;
+            font-size: 2rem;
+            text-align: center;
+            text-shadow: 0 2px 5px rgba(212, 175, 55, 0.3);
+        }
+
+        #map, #homeMap {
+            width: 100%;
+            height: 600px;
+            border-radius: 15px;
+            box-shadow: inset 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 2px solid var(--primary-color);
+            background: #f0f0f0;
+        }
+
+        #homeMap {
+            height: 500px;
+        }
+
+        /* Schedule Table */
+        .schedule-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 15px;
+        }
+
+        .schedule-row {
+            background: linear-gradient(135deg, #ffffff, #fffef8);
+            transition: all 0.3s ease;
+        }
+
+        .schedule-row:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .schedule-row td {
+            padding: 20px;
+            border: 2px solid var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .schedule-row td:first-child {
+            border-radius: 15px 0 0 15px;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            color: var(--dark-red);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .schedule-row td:last-child {
+            border-radius: 0 15px 15px 0;
+            text-align: right;
+            font-weight: 700;
+            color: var(--secondary-color);
+            font-size: 1.4rem;
+        }
+
+        /* Location Button */
+        .location-btn {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            background: linear-gradient(135deg, var(--primary-color), var(--border-gold));
+            border: 3px solid var(--secondary-color);
+            border-radius: 50%;
+            width: 65px;
+            height: 65px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .location-btn:hover {
+            transform: scale(1.15) rotate(90deg);
+            box-shadow: 0 12px 35px rgba(212, 175, 55, 0.6);
+        }
+
+        .location-btn svg {
+            width: 32px;
+            height: 32px;
+            fill: var(--dark-red);
+        }
+
+        /* Fullscreen button */
+        .fullscreen-btn {
+            position: absolute;
+            bottom: 40px;
+            right: 120px;
+            background: linear-gradient(135deg, var(--primary-color), var(--border-gold));
+            border: 3px solid var(--secondary-color);
+            border-radius: 50%;
+            width: 65px;
+            height: 65px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .fullscreen-btn:hover {
+            transform: scale(1.15);
+            box-shadow: 0 12px 35px rgba(212, 175, 55, 0.6);
+        }
+
+        .fullscreen-btn svg {
+            width: 32px;
+            height: 32px;
+            fill: var(--dark-red);
+        }
+
+        /* Fullscreen map styles */
+        .map-container.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            border-radius: 0;
+            padding: 0;
+            margin: 0;
+        }
+
+        .map-container.fullscreen #map {
+            height: 100vh;
+            border-radius: 0;
+        }
+
+        .map-container.fullscreen h2 {
+            display: none;
+        }
+
+        .map-container.fullscreen .fullscreen-btn {
+            bottom: 20px;
+            right: 100px;
+        }
+
+        .map-container.fullscreen .location-btn {
+            bottom: 20px;
+            right: 20px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+            background: linear-gradient(135deg, rgba(139, 0, 0, 0.9), rgba(107, 0, 0, 0.9));
+            border-radius: 20px;
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .footer p {
+            color: var(--light-cream);
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .footer .blessing {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-top: 10px;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        /* Gallery Section */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 20px 0;
+        }
+
+        .gallery-item {
+            background: linear-gradient(135deg, #ffffff, #fffef8);
+            border: 3px solid var(--primary-color);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.5);
+            border-color: var(--border-gold);
+        }
+
+        .gallery-image-wrapper {
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+            position: relative;
+            background: linear-gradient(135deg, #8B0000, #CD5C5C);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+            display: block;
+            opacity: 1;
+        }
+
+        .gallery-item:hover .gallery-image {
+            transform: scale(1.1);
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent 0%, rgba(139, 0, 0, 0.6) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            align-items: flex-end;
+            padding: 20px;
+            pointer-events: none;
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+
+        .gallery-year-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, var(--primary-color), var(--border-gold));
+            color: var(--dark-red);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1;
+        }
+
+        .gallery-caption {
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(255, 248, 220, 0.98), rgba(255, 248, 220, 0.95));
+        }
+
+        .gallery-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark-red);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .gallery-description {
+            font-size: 1rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Gallery Lightbox */
+        .gallery-lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10002;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .gallery-lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+
+        .lightbox-image {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--border-gold));
+            border: none;
+            color: var(--dark-red);
+            font-size: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .lightbox-close:hover {
+            transform: rotate(90deg);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.6);
+        }
+
+        .lightbox-caption {
+            position: absolute;
+            bottom: -80px;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, rgba(255, 248, 220, 0.98), rgba(255, 248, 220, 0.95));
+            padding: 15px 20px;
+            border-radius: 10px;
+            border: 2px solid var(--primary-color);
+        }
+
+        .lightbox-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--dark-red);
+            margin-bottom: 5px;
+        }
+
+        .lightbox-desc {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        /* Responsive Design */
+        
+        /* Tablets and small laptops */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            .header h1 {
+                font-size: 3rem;
+            }
+
+            .header .subtitle {
+                font-size: 1.3rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            #map, #homeMap {
+                height: 500px;
+            }
+
+            .nav-tab {
+                padding: 12px 25px;
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Mobile devices */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px 10px;
+            }
+
+            .header {
+                padding: 20px 15px;
+                margin-bottom: 25px;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+                letter-spacing: 1px;
+            }
+
+            .header .subtitle {
+                font-size: 1rem;
+                letter-spacing: 1px;
+            }
+
+            .header .om-symbol {
+                font-size: 3rem;
+            }
+
+            .header::before,
+            .header::after {
+                font-size: 3rem;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            .nav-tab {
+                justify-content: center;
+                padding: 15px 20px;
+                font-size: 1rem;
+            }
+
+            .nav-tab svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .card h2 {
+                font-size: 1.6rem !important;
+            }
+
+            .card p, .card li {
+                font-size: 1rem !important;
+            }
+
+            #map, #homeMap {
+                height: 400px;
+            }
+
+            .map-container {
+                padding: 15px;
+            }
+
+            .map-container h2 {
+                font-size: 1.6rem;
+                margin-bottom: 15px;
+            }
+
+            .location-btn {
+                width: 55px;
+                height: 55px;
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .location-btn svg {
+                width: 28px;
+                height: 28px;
+            }
+
+            .fullscreen-btn {
+                width: 55px;
+                height: 55px;
+                bottom: 20px;
+                right: 85px;
+            }
+
+            .fullscreen-btn svg {
+                width: 28px;
+                height: 28px;
+            }
+
+            .pandal-item {
+                flex-direction: row;
+                padding: 15px;
+                gap: 15px;
+            }
+
+            .pandal-icon {
+                width: 55px;
+                height: 55px;
+                font-size: 1.7rem;
+            }
+
+            .pandal-name {
+                font-size: 1.1rem;
+            }
+
+            .pandal-location {
+                font-size: 0.9rem;
+            }
+
+            .pandal-item div:last-child {
+                font-size: 0.85rem !important;
+            }
+
+            .schedule-table {
+                border-spacing: 0 10px;
+            }
+
+            .schedule-row td {
+                padding: 15px 12px;
+                font-size: 1rem;
+            }
+
+            .schedule-row td:first-child {
+                gap: 10px;
+            }
+
+            .schedule-row td:last-child {
+                font-size: 1.2rem;
+            }
+
+            .schedule-name::before {
+                font-size: 1.1rem;
+            }
+
+            .location-btn {
+                width: 50px;
+                height: 50px;
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .location-btn svg {
+                width: 24px;
+                height: 24px;
+            }
+
+            .footer {
+                padding: 20px 15px;
+                margin-top: 30px;
+            }
+
+            .footer p {
+                font-size: 1rem;
+            }
+
+            .footer .blessing {
+                font-size: 1.2rem;
+            }
+
+            /* Hide decorative mandalas on mobile for performance */
+            .mandala-decoration {
+                display: none;
+            }
+        }
+
+        /* Small mobile devices */
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8rem;
+                letter-spacing: 0.5px;
+            }
+
+            .header .subtitle {
+                font-size: 0.9rem;
+            }
+
+            .header .om-symbol {
+                font-size: 2.5rem;
+                margin-bottom: 10px;
+            }
+
+            .nav-tab {
+                padding: 12px 15px;
+                font-size: 0.95rem;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            .card h2 {
+                font-size: 1.4rem !important;
+            }
+
+            .pandal-item {
+                padding: 12px;
+            }
+
+            .pandal-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+
+            .pandal-name {
+                font-size: 1rem;
+            }
+
+            .pandal-location {
+                font-size: 0.85rem;
+            }
+
+            #map, #homeMap {
+                height: 350px;
+            }
+
+            .schedule-row td {
+                padding: 12px 10px;
+                font-size: 0.95rem;
+            }
+
+            .schedule-row td:last-child {
+                font-size: 1.1rem;
+            }
+
+            .location-btn {
+                width: 45px;
+                height: 45px;
+                bottom: 15px;
+                right: 15px;
+            }
+
+            .location-btn svg {
+                width: 22px;
+                height: 22px;
+            }
+        }
+
+        /* Cafe Toggle Button */
+        .cafe-toggle-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: linear-gradient(135deg, #8B4513, #A0522D);
+            border: 3px solid #D4AF37;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            font-family: 'Cinzel', serif;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .cafe-toggle-btn.show {
+            display: flex;
+        }
+
+        .cafe-toggle-btn:hover {
+            background: linear-gradient(135deg, #A0522D, #8B4513);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(139, 69, 19, 0.6);
+        }
+
+        .cafe-toggle-btn.active {
+            background: linear-gradient(135deg, #D4AF37, #FFD700);
+            color: #8B0000;
+        }
+
+        @media (max-width: 768px) {
+            .cafe-toggle-btn {
+                bottom: 70px;
+                right: 15px;
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Landscape mode for mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+            #map, #homeMap {
+                height: 350px;
+            }
+
+            .header {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .header .om-symbol {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Extra small devices */
+        @media (max-width: 360px) {
+            .header h1 {
+                font-size: 1.6rem;
+            }
+
+            .nav-tab {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+
+            .card h2 {
+                font-size: 1.3rem !important;
+            }
+
+            .pandal-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
+        }
+
+        /* iOS specific fixes */
+        @supports (-webkit-touch-callout: none) {
+            /* Fix iOS Safari bottom bar overlap */
+            body {
+                min-height: -webkit-fill-available;
+            }
+            
+            /* Fix sticky elements on iOS */
+            .back-button,
+            .location-btn,
+            .fullscreen-btn {
+                position: -webkit-sticky;
+                position: sticky;
+            }
+        }
+
+        /* Android specific optimizations */
+        @media screen and (-webkit-min-device-pixel-ratio: 0) and (min-resolution: .001dpcm) {
+            /* Improve font rendering on Android */
+            body {
+                text-rendering: optimizeLegibility;
+            }
+        }
+
+        /* High DPI displays (Retina, 4K) */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .pandal-icon,
+            .location-btn svg,
+            .fullscreen-btn svg {
+                /* Sharper rendering on high-DPI screens */
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: crisp-edges;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        /* Leaflet popup custom styling */
+        .leaflet-popup-content-wrapper {
+            background: linear-gradient(135deg, rgba(255, 248, 220, 0.98), rgba(255, 248, 220, 0.95));
+            border: 3px solid var(--primary-color);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .leaflet-popup-tip {
+            background: linear-gradient(135deg, rgba(255, 248, 220, 0.98), rgba(255, 248, 220, 0.95));
+            border: 2px solid var(--primary-color);
+        }
+
+        .leaflet-popup-content {
+            margin: 0;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .leaflet-popup button:hover {
+            background: linear-gradient(135deg, #FFD700, #D4AF37) !important;
+            transform: scale(1.05);
+        }
+
+        .custom-marker {
+            animation: markerDrop 0.5s ease-out;
+        }
+
+        @keyframes markerDrop {
+            0% { transform: translateY(-100px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Bounce animation for highlighted marker */
+        .marker-bounce {
+            animation: bounce 0.6s ease-in-out 3 !important;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Highlighted marker with pulsing effect */
+        .marker-highlight {
+            animation: pulse 1.5s ease-in-out infinite !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 0 0 rgba(255, 215, 0, 0.7) !important;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 0 0 rgba(255, 215, 0, 0.7) !important;
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 0 20px rgba(255, 215, 0, 0) !important;
+                transform: scale(1.15);
+            }
+        }
+
+        /* Arrow pointer */
+        .arrow-pointer {
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-top: 40px solid #FFD700;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+            animation: arrowBounce 1s ease-in-out infinite;
+            position: relative;
+        }
+
+        @keyframes arrowBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Back Button */
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #D4AF37, #FFD700);
+            border: 3px solid #8B0000;
+            color: #8B0000;
+            padding: 12px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            font-family: 'Cinzel', serif;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .back-button:hover {
+            background: linear-gradient(135deg, #FFD700, #D4AF37);
+            transform: translateX(-5px);
+            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.6);
+        }
+
+        .back-button.show {
+            display: flex;
+            animation: slideInLeft 0.3s ease;
+        }
+
+        @keyframes slideInLeft {
+            from { 
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .back-button {
+                top: 15px;
+                left: 15px;
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Location tracking notification */
+        .location-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #4285F4, #3367D6);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-family: 'Cinzel', serif;
+            box-shadow: 0 5px 20px rgba(66, 133, 244, 0.5);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            animation: slideInRight 0.4s ease;
+        }
+
+        .location-notification.show {
+            display: flex;
+        }
+
+        @keyframes slideInRight {
+            from { 
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .location-pulse {
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            animation: locationPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes locationPulse {
+            0%, 100% { 
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.5;
+                transform: scale(1.3);
+            }
+        }
+
+        /* Leaflet Routing Machine Custom Styles */
+        .leaflet-routing-container {
+            background: linear-gradient(135deg, rgba(255, 248, 220, 0.98), rgba(255, 248, 220, 0.95)) !important;
+            border: 2px solid var(--primary-color) !important;
+            border-radius: 10px !important;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3) !important;
+            font-family: 'Cormorant Garamond', serif !important;
+        }
+
+        .leaflet-routing-alt {
+            background: white !important;
+            border-radius: 8px !important;
+            padding: 10px !important;
+            margin: 8px 0 !important;
+        }
+
+        .leaflet-routing-alt:hover {
+            background: var(--light-cream) !important;
+        }
+
+        .leaflet-routing-alt-minimized {
+            background: transparent !important;
+        }
+
+        .leaflet-routing-geocoders {
+            display: none !important;
+        }
+
+        .leaflet-routing-collapse-btn {
+            background: var(--primary-color) !important;
+            color: var(--dark-red) !important;
+        }
+
+        /* Direction Modal */
+        .direction-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10001;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .direction-modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(255, 248, 220, 0.98), rgba(255, 248, 220, 0.95));
+            border: 3px solid var(--primary-color);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            color: var(--dark-red);
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .modal-subheader {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 1rem;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: var(--dark-red);
+            cursor: pointer;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(139, 0, 0, 0.1);
+            transform: rotate(90deg);
+        }
+
+        .direction-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .direction-option {
+            background: linear-gradient(135deg, #ffffff, #fffef8);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .direction-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+            border-color: var(--border-gold);
+            background: linear-gradient(135deg, var(--light-cream), #ffffff);
+        }
+
+        .direction-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--secondary-color), var(--dark-red));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            border: 2px solid var(--primary-color);
+        }
+
+        .direction-text {
+            flex: 1;
+        }
+
+        .direction-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark-red);
+            margin-bottom: 5px;
+        }
+
+        .direction-desc {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                padding: 25px 20px;
+            }
+
+            .modal-header {
+                font-size: 1.5rem;
+            }
+
+            .direction-option {
+                padding: 15px;
+            }
+
+            .direction-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
+
+            .direction-title {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .location-notification {
+                top: 70px;
+                right: 15px;
+                font-size: 0.85rem;
+                padding: 10px 16px;
+            }
+        }
+
+        /* Route Planner Panel */
+        .route-planner-panel {
+            position: fixed;
+            bottom: -600px;
+            left: 0;
+            right: 0;
+            height: 500px;
+            background: linear-gradient(135deg, rgba(255, 248, 220, 0.98), rgba(255, 248, 220, 0.95));
+            border-top: 3px solid var(--primary-color);
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            transition: bottom 0.4s ease;
+            overflow-y: auto;
+        }
+
+        .route-planner-panel.show {
+            bottom: 0;
+        }
+
+        .route-planner-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--secondary-color), var(--dark-red));
+            color: var(--light-cream);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .route-planner-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .route-planner-close {
+            background: none;
+            border: none;
+            color: var(--light-cream);
+            font-size: 2rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .route-planner-close:hover {
+            background: rgba(255, 248, 220, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .route-planner-content {
+            padding: 20px;
+        }
+
+        .route-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+
+        .route-item {
+            background: linear-gradient(135deg, #ffffff, #fffef8);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .route-item.completed {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-color: #28a745;
+            opacity: 0.8;
+        }
+
+        .route-item.active {
+            border-color: #FFD700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            animation: activePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes activePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .route-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--secondary-color), var(--dark-red));
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            border: 2px solid var(--primary-color);
+        }
+
+        .route-item.completed .route-number {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+        }
+
+        .route-info {
+            flex: 1;
+        }
+
+        .route-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark-red);
+            margin-bottom: 3px;
+        }
+
+        .route-status {
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .route-item.completed .route-status {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .route-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .route-action-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .route-action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .route-action-btn.check {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+        }
+
+        .route-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .route-btn {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-color), var(--border-gold));
+            border: 2px solid var(--dark-red);
+            color: var(--dark-red);
+            padding: 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            font-family: 'Cinzel', serif;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .route-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.6);
+        }
+
+        .route-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .route-summary {
+            background: linear-gradient(135deg, var(--light-cream), #ffffff);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .route-stat {
+            flex: 1;
+        }
+
+        .route-stat-value {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-red);
+        }
+
+        .route-stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .route-planner-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-color), var(--border-gold));
+            border: 3px solid var(--dark-red);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            z-index: 9998;
+            transition: all 0.3s ease;
+        }
+
+        .route-planner-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.6);
+        }
+
+        .route-planner-toggle .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+
+        @media (max-width: 768px) {
+            .route-planner-panel {
+                height: 400px;
+            }
+
+            .route-planner-toggle {
+                width: 55px;
+                height: 55px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Button -->
+    <button class="back-button" id="backButton" onclick="goBack()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+        Back
+    </button>
+
+    <!-- Direction Modal -->
+    <div class="direction-modal" id="directionModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeDirectionModal()">×</button>
+            <div class="modal-header">🗺️ Get Directions</div>
+            <div class="modal-subheader" id="modalPandalName">Choose how to view directions</div>
+            
+            <div class="direction-options">
+                <div class="direction-option" onclick="showDirectionsInMap()">
+                    <div class="direction-icon">🧭</div>
+                    <div class="direction-text">
+                        <div class="direction-title">View in Map</div>
+                        <div class="direction-desc">See route on this website</div>
+                    </div>
+                </div>
+                
+                <div class="direction-option" onclick="openInGoogleMaps()">
+                    <div class="direction-icon">📱</div>
+                    <div class="direction-text">
+                        <div class="direction-title">Open Google Maps</div>
+                        <div class="direction-desc">Navigate with Google Maps app</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Route Planner Toggle Button -->
+    <button class="route-planner-toggle" id="routePlannerToggle" onclick="toggleRoutePlanner()">
+        🗺️
+        <span class="badge" id="routeBadge" style="display: none;">0</span>
+    </button>
+
+    <!-- Route Planner Panel -->
+    <div class="route-planner-panel" id="routePlannerPanel">
+        <div class="route-planner-header">
+            <div class="route-planner-title">
+                🗺️ My Route Planner
+            </div>
+            <button class="route-planner-close" onclick="toggleRoutePlanner()">×</button>
+        </div>
+        
+        <div class="route-planner-content">
+            <div class="route-summary">
+                <div class="route-stat">
+                    <div class="route-stat-value" id="totalPandals">0</div>
+                    <div class="route-stat-label">Total Pandals</div>
+                </div>
+                <div class="route-stat">
+                    <div class="route-stat-value" id="completedPandals">0</div>
+                    <div class="route-stat-label">Completed</div>
+                </div>
+                <div class="route-stat">
+                    <div class="route-stat-value" id="remainingPandals">0</div>
+                    <div class="route-stat-label">Remaining</div>
+                </div>
+            </div>
+
+            <ul class="route-list" id="routeList">
+                <li style="text-align: center; padding: 40px 20px; color: #999; font-style: italic;">
+                    No pandals added yet. Click "Add to Route" on any pandal!
+                </li>
+            </ul>
+
+            <div class="route-controls">
+                <button class="route-btn" onclick="startRoute()" id="startRouteBtn" disabled>
+                    ▶️ Start Route
+                </button>
+                <button class="route-btn" onclick="clearRoute()" id="clearRouteBtn" disabled>
+                    🗑️ Clear All
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Location Tracking Notification -->
+    <div class="location-notification" id="locationNotification">
+        <div class="location-pulse"></div>
+        <span id="locationText">Tracking your location...</span>
+    </div>
+
+    <!-- Cafe Toggle Button -->
+    <button class="cafe-toggle-btn" id="cafeToggleBtn" onclick="toggleCafes()">
+        <span>☕</span>
+        <span id="cafeToggleText">Show Cafes & Restaurants</span>
+    </button>
+
+    <!-- Decorative elements -->
+    <div class="mandala-decoration mandala-1"></div>
+    <div class="mandala-decoration mandala-2"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="om-symbol">🕉️</div>
+            <h1>|| Jagadhatri Puja ||</h1>
+            <p class="subtitle">Pandal Guide of Chandan Nagar</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('home')">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"/>
+                </svg>
+                Home
+            </button>
+            <button class="nav-tab" onclick="showSection('pandals')">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12,2L2,7V17H6V22H18V17H22V7L12,2M8,18V12H16V18H8M20,15H18V10H6V15H4V8.16L12,4.16L20,8.16V15Z"/>
+                </svg>
+                Pandal List
+            </button>
+            <button class="nav-tab" onclick="showSection('map')">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5M12,2A7,7 0 0,0 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9A7,7 0 0,0 12,2Z"/>
+                </svg>
+                Map View
+            </button>
+            <button class="nav-tab" onclick="showSection('schedule')">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19,19H5V8H19M16,1V3H8V1H6V3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3H18V1M17,12H12V17H17V12Z"/>
+                </svg>
+                Puja Schedule
+            </button>
+            <button class="nav-tab" onclick="showSection('gallery')">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22,16V4A2,2 0 0,0 20,2H8A2,2 0 0,0 6,4V16A2,2 0 0,0 8,18H20A2,2 0 0,0 22,16M11,12L13.03,14.71L16,11L20,16H8M2,6V20A2,2 0 0,0 4,22H18V20H4V6"/>
+                </svg>
+                Gallery
+            </button>
+        </div>
+
+        <!-- Home Section -->
+        <div id="home" class="content-section active">
+            <div class="cards-grid">
+                <div class="card">
+                    <h2 style="font-family: 'Cinzel', serif; color: var(--dark-red); margin-bottom: 20px; font-size: 2rem; text-align: center;">🙏 Welcome 🙏</h2>
+                    <p style="font-size: 1.2rem; line-height: 1.8; color: #333; text-align: center;">
+                        Welcome to the divine celebration of <strong>Jagadhatri Puja</strong> in Chandan Nagar. 
+                        Explore the magnificent pandals, view their locations on the interactive map, and plan your spiritual journey.
+                    </p>
+                    <p style="font-size: 1.1rem; line-height: 1.8; color: #555; margin-top: 20px; text-align: center;">
+                        May Goddess Jagadhatri bless you with peace, prosperity, and happiness.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h2 style="font-family: 'Cinzel', serif; color: var(--dark-red); margin-bottom: 20px; font-size: 2rem; text-align: center;">📍 Featured Pandals</h2>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 12px 0; border-bottom: 2px solid var(--primary-color); font-size: 1.15rem; color: #333;">🏛️ <strong>Boro Kalitala</strong> </li>
+                        <li style="padding: 12px 0; border-bottom: 2px solid var(--primary-color); font-size: 1.15rem; color: #333;">🕉️ <strong>Neogibagan</strong> </li>
+                        <li style="padding: 12px 0; border-bottom: 2px solid var(--primary-color); font-size: 1.15rem; color: #333;">🙏 <strong>Fotokgora</strong> </li>
+                        <li style="padding: 12px 0; border-bottom: 2px solid var(--primary-color); font-size: 1.15rem; color: #333;">👑 <strong>Tematha</strong> </li>
+                        <li style="padding: 12px 0; font-size: 1.15rem; color: #333;">🎭 <strong>Palpara</strong> </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="map-container">
+                <h2>🗺️ Interactive Map Overview</h2>
+                <div id="homeMap"></div>
+            </div>
+        </div>
+
+        <!-- Pandals Section -->
+        <div id="pandals" class="content-section">
+            <div class="card">
+                <h2 style="font-family: 'Cinzel', serif; color: var(--dark-red); margin-bottom: 25px; font-size: 2.2rem; text-align: center;">
+                    🏛️ Famous Pandals of Chandan Nagar
+                </h2>
+                <div id="pandalsList"></div>
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div id="map-section" class="content-section">
+            <div class="map-container" id="mapContainer">
+                <h2>🗺️ Pandal Locations Map</h2>
+                <div id="map"></div>
+                <button class="fullscreen-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen">
+                    <svg viewBox="0 0 24 24" id="fullscreenIcon">
+                        <path d="M7,14H5v5h5v-2H7V14M5,10h2V7h3V5H5V10M17,17h-3v2h5v-5h-2V17M14,5v2h3v3h2V5H14Z"/>
+                    </svg>
+                </button>
+                <button class="location-btn" onclick="centerOnUser()" title="Find My Location">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8M3.05,13H1V11H3.05C3.5,6.83 6.83,3.5 11,3.05V1H13V3.05C17.17,3.5 20.5,6.83 20.95,11H23V13H20.95C20.5,17.17 17.17,20.5 13,20.95V23H11V20.95C6.83,20.5 3.5,17.17 3.05,13M12,5A7,7 0 0,0 5,12A7,7 0 0,0 12,19A7,7 0 0,0 19,12A7,7 0 0,0 12,5Z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Schedule Section -->
+        <div id="schedule" class="content-section">
+            <div class="card">
+                <h2 style="font-family: 'Cinzel', serif; color: var(--dark-red); margin-bottom: 30px; font-size: 2.2rem; text-align: center;">
+                    🕉️ Daily Puja Schedule
+                </h2>
+                <table class="schedule-table">
+                    <tr class="schedule-row">
+                        <td><span style="font-size: 1.5rem;">🔔</span> Aarti</td>
+                        <td>07:00 AM</td>
+                    </tr>
+                    <tr class="schedule-row">
+                        <td><span style="font-size: 1.5rem;">🌸</span> Pushpanjali</td>
+                        <td>09:00 AM</td>
+                    </tr>
+                    <tr class="schedule-row">
+                        <td><span style="font-size: 1.5rem;">🙏</span> Anjali</td>
+                        <td>10:00 AM</td>
+                    </tr>
+                    <tr class="schedule-row">
+                        <td><span style="font-size: 1.5rem;">🕉️</span> Sandhi Puja</td>
+                        <td>12:00 PM</td>
+                    </tr>
+                    <tr class="schedule-row">
+                        <td><span style="font-size: 1.5rem;">🍛</span> Bhog</td>
+                        <td>01:00 PM</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Gallery Section -->
+        <div id="gallery" class="content-section">
+            <div class="card">
+                <h2 style="font-family: 'Cinzel', serif; color: var(--dark-red); margin-bottom: 30px; font-size: 2.2rem; text-align: center;">
+                    📸 Jagadhatri Puja Gallery
+                </h2>
+                <p style="text-align: center; color: #666; margin-bottom: 30px; font-size: 1.1rem;">
+                    Relive the divine moments from previous years' celebrations
+                </p>
+            </div>
+
+            <div class="gallery-grid" id="galleryGrid">
+                <!-- Sample Gallery Items - Replace with your actual photos -->
+                <div class="gallery-item" onclick="openLightbox(0)">
+                    <div class="gallery-image-wrapper">
+                        <div class="gallery-year-badge">2024</div>
+                        <img src="https://github.com/workarijit06/Pujodekho/blob/workarijit06-patch-1/DSC_0101.JPG?raw=true" alt="Jagadhatri Puja 2024" class="gallery-image" loading="lazy">
+                        <div class="gallery-overlay">
+                            <div style="color: white; font-weight: bold;">Click to view</div>
+                        </div>
+                    </div>
+                    <div class="gallery-caption">
+                        <div class="gallery-title">Radiance</div>
+                        <div class="gallery-description">The grand opening ceremony with traditional rituals</div>
+                    </div>
+                </div>
+
+                <div class="gallery-item" onclick="openLightbox(1)">
+                    <div class="gallery-image-wrapper">
+                        <div class="gallery-year-badge">2024</div>
+                        <img src="https://github.com/workarijit06/Pujodekho/blob/workarijit06-patch-1/DSC_0392.JPG?raw=true" alt="Goddess Idol 2024" class="gallery-image" loading="lazy">
+                        <div class="gallery-overlay">
+                            <div style="color: white; font-weight: bold;">Click to view</div>
+                        </div>
+                    </div>
+                    <div class="gallery-caption">
+                        <div class="gallery-title">Spectacle</div>
+                        <div class="gallery-description">Beautiful decoration of Goddess Jagadhatri</div>
+                    </div>
+                </div>
+
+                <div class="gallery-item" onclick="openLightbox(2)">
+                    <div class="gallery-image-wrapper">
+                        <div class="gallery-year-badge">2023</div>
+                        <img src="https://github.com/workarijit06/Pujodekho/blob/workarijit06-patch-1/DSC_0367.JPG?raw=true" alt="Evening Aarti 2023" class="gallery-image" loading="lazy">
+                        <div class="gallery-overlay">
+                            <div style="color: white; font-weight: bold;">Click to view</div>
+                        </div>
+                    </div>
+                    <div class="gallery-caption">
+                        <div class="gallery-title">Devotion</div>
+                        <div class="gallery-description">Devotees gathered for the sacred evening aarti</div>
+                    </div>
+                </div>
+
+                <div class="gallery-item" onclick="openLightbox(3)">
+                    <div class="gallery-image-wrapper">
+                        <div class="gallery-year-badge">2023</div>
+                        <img src="https://github.com/workarijit06/Pujodekho/blob/workarijit06-patch-1/DSC_0338.JPG?raw=true" alt="Cultural Program 2023" class="gallery-image" loading="lazy">
+                        <div class="gallery-overlay">
+                            <div style="color: white; font-weight: bold;">Click to view</div>
+                        </div>
+                    </div>
+                    <div class="gallery-caption">
+                        <div class="gallery-title">Illumination</div>
+                        <div class="gallery-description">Traditional dance and music performances</div>
+                    </div>
+                </div>
+
+                <div class="gallery-item" onclick="openLightbox(4)">
+                    <div class="gallery-image-wrapper">
+                        <div class="gallery-year-badge">2022</div>
+                        <img src="https://github.com/workarijit06/Pujodekho/blob/workarijit06-patch-1/DSC_0297.JPG?raw=true" alt="Pandal Decoration 2022" class="gallery-image" loading="lazy">
+                        <div class="gallery-overlay">
+                            <div style="color: white; font-weight: bold;">Click to view</div>
+                        </div>
+                    </div>
+                    <div class="gallery-caption">
+                        <div class="gallery-title">Creativity</div>
+                        <div class="gallery-description">Magnificent theme-based decoration</div>
+                    </div>
+                </div>
+
+                <div class="gallery-item" onclick="openLightbox(5)">
+                    <div class="gallery-image-wrapper">
+                        <div class="gallery-year-badge">2022</div>
+                        <img src="https://github.com/workarijit06/Pujodekho/blob/workarijit06-patch-1/DSC_0296.JPG?raw=true" alt="Devotees 2022" class="gallery-image" loading="lazy">
+                        <div class="gallery-overlay">
+                            <div style="color: white; font-weight: bold;">Click to view</div>
+                        </div>
+                    </div>
+                    <div class="gallery-caption">
+                        <div class="gallery-title">Triumph</div>
+                        <div class="gallery-description">Thousands of devotees visiting the pandal</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gallery Lightbox -->
+        <div class="gallery-lightbox" id="galleryLightbox" onclick="closeLightbox()">
+            <div class="lightbox-content" onclick="event.stopPropagation()">
+                <button class="lightbox-close" onclick="closeLightbox()">×</button>
+                <img src="" alt="" class="lightbox-image" id="lightboxImage">
+                <div class="lightbox-caption">
+                    <div class="lightbox-title" id="lightboxTitle"></div>
+                    <div class="lightbox-desc" id="lightboxDesc"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>May the blessings of Goddess Jagadhatri be with you always</p>
+            <div class="blessing">|| शुभम् भवतु ||</div>
+        </footer>
+    </div>
+
+    <script>
+        // Pandal data with GPS coordinates for Chandan Nagar area
+        const pandals = [
+            {
+                name: "TEMATHA (RANI MA)",
+                location: "Chandan Nagar",
+                lat: 22.844980845302267,
+                lng: 88.3629523293878,
+                icon: "👑",
+                description: "Historic Rani Ma pandal with royal heritage"
+            },
+            {
+                name: "GOPALBAG",
+                location: "Chandan Nagar",
+                lat: 22.84629341995857,
+                lng: 88.36202599584387,
+                icon: "🏛️",
+                description: "Famous pandal known for its traditional decoration"
+            },
+            {
+                name: "LICHUTOLA",
+                location: "Chandan Nagar",
+                lat: 22.848709384093183,
+                lng: 88.36380093817259,
+                icon: "🕉️",
+                description: "Known for its spiritual ambiance and beautiful lighting"
+            },
+            {
+                name: "RATHER SARAK",
+                location: "Chandan Nagar",
+                lat: 22.853329625676768,
+                lng: 88.36550307865168,
+                icon: "🙏",
+                description: "Popular for its artistic theme and cultural programs"
+            },
+            {
+                name: "LAL BAGAN PADRIPARA",
+                location: "Chandan Nagar",
+                lat: 22.85689861680002,
+                lng: 88.36504478235128,
+                icon: "🎭",
+                description: "Creative themes and innovative decorations"
+            },
+            {
+                name: "BAGBAZAR CHOUMATHA",
+                location: "Chandan Nagar",
+                lat: 22.864637927685237,
+                lng: 88.3682697525329,
+                icon: "🌟",
+                description: "Magnificent pandal at the crossroads"
+            },
+            {
+                name: "BAGBAZAR",
+                location: "Chandan Nagar",
+                lat: 22.862367976456376,
+                lng: 88.36586598508215,
+                icon: "🪔",
+                description: "Traditional pandal with cultural significance"
+            },
+            {
+                name: "MADHYANCHAL",
+                location: "Chandan Nagar",
+                lat: 22.864976537951218,
+                lng: 88.36317058790071,
+                icon: "🎪",
+                description: "Central area pandal with grand celebrations"
+            },
+            {
+                name: "FATOKGORA",
+                location: "Chandan Nagar",
+                lat: 22.866078836708752,
+                lng: 88.35909592468023,
+                icon: "🏮",
+                description: "Known for its illumination and decorations"
+            },
+            {
+                name: "KHALISHSNI CGR STATION",
+                location: "Chandan Nagar",
+                lat: 22.866413678968954,
+                lng: 88.35470276515922,
+                icon: "🚉",
+                description: "Pandal near the railway station"
+            },
+            {
+                name: "BORO TALDANGA",
+                location: "Chandan Nagar",
+                lat: 22.878135739847888,
+                lng: 88.37678360432785,
+                icon: "🏯",
+                description: "Grand pandal with traditional decorations"
+            },
+            {
+                name: "BORO DIGHIRDGAR",
+                location: "Chandan Nagar",
+                lat: 22.874354866770858,
+                lng: 88.37504692204313,
+                icon: "🛕",
+                description: "Historic pandal with cultural significance"
+            },
+            {
+                name: "BORO KALITALA",
+                location: "Chandan Nagar",
+                lat: 22.870090213177075,
+                lng: 88.37395468898265,
+                icon: "🕉️",
+                description: "Traditional Kali temple area pandal"
+            },
+            {
+                name: "SARSE PARA",
+                location: "Chandan Nagar",
+                lat: 22.86872348984237,
+                lng: 88.37414477786189,
+                icon: "🌺",
+                description: "Beautiful pandal with floral decorations"
+            },
+            {
+                name: "ADI MA BAZAR",
+                location: "Chandan Nagar",
+                lat: 22.86546996180812,
+                lng: 88.37340888119921,
+                icon: "🛍️",
+                description: "Pandal near the market area"
+            },
+            {
+                name: "KAPORE POTTI",
+                location: "Chandan Nagar",
+                lat: 22.87007811364638,
+                lng: 88.37168977031426,
+                icon: "👗",
+                description: "Pandal in the cloth market area"
+            },
+            {
+                name: "URDIBAZAR",
+                location: "Chandan Nagar",
+                lat: 22.861743869779378,
+                lng: 88.37193563553389,
+                icon: "🏪",
+                description: "Traditional market area pandal"
+            },
+            {
+                name: "BAROBAZAR",
+                location: "Chandan Nagar",
+                lat: 22.859328255640673,
+                lng: 88.36905166993037,
+                icon: "🏬",
+                description: "Grand bazaar area pandal"
+            },
+            {
+                name: "NONATOLA",
+                location: "Chandan Nagar",
+                lat: 22.853996804184426,
+                lng: 88.36858300247329,
+                icon: "🌾",
+                description: "Traditional neighborhood pandal"
+            },
+            {
+                name: "VUBONESWARITALA",
+                location: "Chandan Nagar",
+                lat: 22.852334566779813,
+                lng: 88.36838582018866,
+                icon: "🙏",
+                description: "Sacred area with spiritual significance"
+            },
+            {
+                name: "DOIBOKPARA",
+                location: "Chandan Nagar",
+                lat: 22.85270623135676,
+                lng: 88.36673457031432,
+                icon: "🏘️",
+                description: "Community pandal with local heritage"
+            },
+            {
+                name: "MONSATALA",
+                location: "Chandan Nagar",
+                lat: 22.85102331560642,
+                lng: 88.36753797786102,
+                icon: "⛩️",
+                description: "Historic pandal with traditional values"
+            },
+            {
+                name: "BESOHATA",
+                location: "Chandan Nagar",
+                lat: 22.848657884064778,
+                lng: 88.36535465273154,
+                icon: "🎪",
+                description: "Vibrant pandal with cultural programs"
+            },
+            {
+                name: "KACHARIGHAT",
+                location: "Chandan Nagar",
+                lat: 22.846138061172205,
+                lng: 88.3709820834212,
+                icon: "🏛️",
+                description: "Riverside pandal with scenic views"
+            },
+            {
+                name: "GANDOLPARA MONSATALA",
+                location: "Chandan Nagar",
+                lat: 22.845290753510163,
+                lng: 88.3710421272337,
+                icon: "🕌",
+                description: "Community pandal with grand celebrations"
+            },
+            {
+                name: "CHARMONDIRTALA",
+                location: "Chandan Nagar",
+                lat: 22.846623386285103,
+                lng: 88.3685066220419,
+                icon: "🎭",
+                description: "Artistic pandal with creative themes"
+            },
+            {
+                name: "SATGHATA",
+                location: "Chandan Nagar",
+                lat: 22.844878576231274,
+                lng: 88.36898292215324,
+                icon: "🌟",
+                description: "Seven ghats area pandal"
+            },
+            {
+                name: "AMBIKA",
+                location: "Chandan Nagar",
+                lat: 22.843883870126053,
+                lng: 88.36596782747584,
+                icon: "👸",
+                description: "Divine mother themed pandal"
+            },
+            {
+                name: "TETULTALA",
+                location: "Chandan Nagar",
+                lat: 22.822484590410404,
+                lng: 88.35325221595173,
+                icon: "🌳",
+                description: "Pandal under the tamarind tree"
+            },
+            {
+                name: "CIRCUS MATH",
+                location: "Chandan Nagar",
+                lat: 22.845977171727252,
+                lng: 88.35960987786076,
+                icon: "🎪",
+                description: "Entertainment area pandal"
+            },
+            {
+                name: "NEOGIBAGAN",
+                location: "Chandan Nagar",
+                lat: 22.847763233286575,
+                lng: 88.3549254238954,
+                icon: "🏡",
+                description: "New garden area pandal"
+            },
+            {
+                name: "NATUN PARA",
+                location: "Chandan Nagar",
+                lat: 22.845712374488578,
+                lng: 88.35219730669702,
+                icon: "🆕",
+                description: "New neighborhood pandal"
+            },
+            {
+                name: "MANKUNDU SPORTING",
+                location: "Chandan Nagar",
+                lat: 22.847275221059714,
+                lng: 88.35028423553327,
+                icon: "⚽",
+                description: "Sports club area pandal"
+            },
+            {
+                name: "BHAGARER MORE CHOUMATHA",
+                location: "Chandan Nagar",
+                lat: 22.871801772345837,
+                lng: 88.35822371050239,
+                icon: "🏛️",
+                description: "Major crossroads pandal with grand decorations"
+            },
+            {
+                name: "SASTI TALA",
+                location: "Chandan Nagar",
+                lat: 22.857016746282802,
+                lng: 88.36239337971519,
+                icon: "🕉️",
+                description: "Traditional pandal with cultural significance"
+            },
+            {
+                name: "ADI HALDERPARA",
+                location: "Chandan Nagar",
+                lat: 22.856138689448787,
+                lng: 88.3626022932061,
+                icon: "🏘️",
+                description: "Historic neighborhood pandal"
+            },
+            {
+                name: "VIDYALANKA",
+                location: "Chandan Nagar",
+                lat: 22.86741911991958,
+                lng: 88.36746976437037,
+                icon: "📚",
+                description: "Educational area pandal with cultural programs"
+            },
+            {
+                name: "HELAPUKUR",
+                location: "Chandan Nagar",
+                lat: 22.869756897755,
+                lng: 88.37068948898265,
+                icon: "💧",
+                description: "Lakeside pandal with scenic beauty"
+            },
+            {
+                name: "PALPARA",
+                location: "Chandan Nagar",
+                lat: 22.87145979916338,
+                lng: 88.36934955613751,
+                icon: "🌺",
+                description: "Beautiful pandal with traditional decorations"
+            },
+            {
+                name: "SANTANSANGHA",
+                location: "Chandan Nagar",
+                lat: 22.876455918491448,
+                lng: 88.37201006437077,
+                icon: "🎭",
+                description: "Community club pandal with grand celebrations"
+            },
+            {
+                name: "SURER PUKUR",
+                location: "Chandan Nagar",
+                lat: 22.878925131204763,
+                lng: 88.37024662574267,
+                icon: "🎵",
+                description: "Musical heritage area pandal"
+            },
+            {
+                name: "HALDEDANGA",
+                location: "Chandan Nagar",
+                lat: 22.88212644751323,
+                lng: 88.37533889320734,
+                icon: "🌾",
+                description: "Rural area pandal with traditional values"
+            }
+        ];
+
+        // Cafes and Restaurants data
+        const cafesRestaurants = [
+            {
+                name: "ATMOSPHERE",
+                location: "Chandan Nagar",
+                lat: 22.857775728875346,
+                lng: 88.36593987865189,
+                icon: "☕",
+                type: "Cafe",
+                description: "Popular cafe with great ambiance"
+            },
+            {
+                name: "KFC",
+                location: "Chandan Nagar",
+                lat: 22.85655566194967,
+                lng: 88.36552780748754,
+                icon: "🍗",
+                type: "Restaurant",
+                description: "Fast food restaurant"
+            },
+            {
+                name: "MOC",
+                location: "Chandan Nagar",
+                lat: 22.860837443073397,
+                lng: 88.36985412283039,
+                icon: "🍽️",
+                type: "Restaurant",
+                description: "Fine dining restaurant"
+            },
+            {
+                name: "RR CAFE",
+                location: "Chandan Nagar",
+                lat: 22.864527324349613,
+                lng: 88.36478195166617,
+                icon: "☕",
+                type: "Cafe",
+                description: "Cozy cafe for refreshments"
+            },
+            {
+                name: "SAMRAT",
+                location: "Chandan Nagar",
+                lat: 22.84892852760798,
+                lng: 88.36346462282994,
+                icon: "🍛",
+                type: "Restaurant",
+                description: "Traditional restaurant"
+            },
+            {
+                name: "COFFEE HOUSE",
+                location: "Chandan Nagar",
+                lat: 22.85907705901334,
+                lng: 88.36881521488645,
+                icon: "☕",
+                type: "Cafe",
+                description: "Classic coffee house"
+            },
+            {
+                name: "CHAYER HUT",
+                location: "Chandan Nagar",
+                lat: 22.851330102049214,
+                lng: 88.36732227865166,
+                icon: "🍵",
+                type: "Cafe",
+                description: "Tea stall with snacks"
+            },
+            {
+                name: "JOLSHREE",
+                location: "Chandan Nagar",
+                lat: 22.86040720203444,
+                lng: 88.37166044981632,
+                icon: "🍽️",
+                type: "Restaurant",
+                description: "Popular restaurant"
+            },
+            {
+                name: "DOMINOS",
+                location: "Chandan Nagar",
+                lat: 22.86000128879903,
+                lng: 88.36666435166603,
+                icon: "🍕",
+                type: "Restaurant",
+                description: "Pizza restaurant"
+            },
+            {
+                name: "KARIMS",
+                location: "Chandan Nagar",
+                lat: 22.86759104844302,
+                lng: 88.3665424363236,
+                icon: "🍖",
+                type: "Restaurant",
+                description: "Famous for kebabs and biryani"
+            },
+            {
+                name: "VK18",
+                location: "Chandan Nagar",
+                lat: 22.85406137825159,
+                lng: 88.3693461013933,
+                icon: "🍽️",
+                type: "Restaurant",
+                description: "Modern dining experience"
+            },
+            {
+                name: "CHAYER THEK",
+                location: "Chandan Nagar",
+                lat: 22.865162209913333,
+                lng: 88.36291375906507,
+                icon: "🍵",
+                type: "Cafe",
+                description: "Tea corner with local flavors"
+            },
+            {
+                name: "CAFE DESTINATION",
+                location: "Chandan Nagar",
+                lat: 22.858986059119413,
+                lng: 88.36817761118705,
+                icon: "☕",
+                type: "Cafe",
+                description: "Trendy cafe destination"
+            },
+            {
+                name: "ADDA",
+                location: "Chandan Nagar",
+                lat: 22.85782556479046,
+                lng: 88.36800924187234,
+                icon: "☕",
+                type: "Cafe",
+                description: "Perfect place for adda"
+            },
+            {
+                name: "BHUTER RAJA DILO BOR",
+                location: "Chandan Nagar",
+                lat: 22.861870235390082,
+                lng: 88.36797447234306,
+                icon: "🍽️",
+                type: "Restaurant",
+                description: "Unique dining experience"
+            },
+            {
+                name: "MOJLISH",
+                location: "Chandan Nagar",
+                lat: 22.865488938680016,
+                lng: 88.37261752377641,
+                icon: "🍛",
+                type: "Restaurant",
+                description: "Traditional Bengali cuisine"
+            }
+        ];
+
+        let map, homeMap;
+        let markers = [];
+        let cafeMarkers = [];
+        let userMarker = null;
+        let currentArrow = null;
+        let highlightedMarkerIndex = null;
+        let navigationHistory = ['home'];
+        let userLocation = null;
+        let selectedPandalLocation = null;
+        let routingControl = null;
+        let myRoute = [];
+        let currentRouteIndex = 0;
+        let routeActive = false;
+
+        // Initialize Leaflet Maps (OpenStreetMap - No API Key Required)
+        function initMap() {
+            const chandanNagar = [22.856, 88.363];
+            
+            // Custom icon for markers
+            const customIcon = L.divIcon({
+                className: 'custom-marker',
+                html: '<div style="background: linear-gradient(135deg, #8B0000, #6B0000); border: 3px solid #D4AF37; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #FFD700; font-weight: bold; font-size: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);"></div>',
+                iconSize: [40, 40],
+                iconAnchor: [20, 40],
+                popupAnchor: [0, -40]
+            });
+
+            // Main map
+            map = L.map('map').setView(chandanNagar, 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Home map
+            homeMap = L.map('homeMap').setView(chandanNagar, 14);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(homeMap);
+
+            // Add markers to maps
+            addMarkersToMap(map, true);
+            addMarkersToMap(homeMap, false);
+            
+            // Populate pandal list
+            populatePandalList();
+
+            // Add map click event to clear highlights
+            map.on('click', function(e) {
+                clearHighlight();
+            });
+        }
+
+        function addMarkersToMap(mapInstance, isMainMap) {
+            pandals.forEach((pandal, index) => {
+                // Create custom marker icon with number
+                const markerIcon = L.divIcon({
+                    className: 'custom-marker',
+                    html: `<div style="background: linear-gradient(135deg, #8B0000, #6B0000); border: 3px solid #D4AF37; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #FFD700; font-weight: bold; font-size: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">${index + 1}</div>`,
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 40],
+                    popupAnchor: [0, -40]
+                });
+
+                const marker = L.marker([pandal.lat, pandal.lng], { 
+                    icon: markerIcon,
+                    title: pandal.name
+                }).addTo(mapInstance);
+
+                // Popup content with religious styling
+                const popupContent = `
+                    <div style="padding: 10px; font-family: 'Cinzel', serif; min-width: 250px;">
+                        <div style="font-size: 2.5rem; text-align: center; margin-bottom: 10px;">${pandal.icon}</div>
+                        <h3 style="margin: 0 0 8px 0; color: #8B0000; font-size: 1.3rem; text-align: center; font-family: 'Cinzel', serif;">${pandal.name}</h3>
+                        <p style="margin: 0 0 8px 0; color: #666; text-align: center; font-family: 'Cormorant Garamond', serif;"><strong>📍 ${pandal.location}</strong></p>
+                        <p style="margin: 0 0 15px 0; color: #555; font-size: 0.95rem; font-family: 'Cormorant Garamond', serif; text-align: center;">${pandal.description}</p>
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <button onclick="addToRoute(${index})" 
+                                    style="flex: 1; background: linear-gradient(135deg, #28a745, #1e7e34); 
+                                           color: white; border: 2px solid #1e7e34; padding: 10px 15px; 
+                                           border-radius: 25px; cursor: pointer; font-weight: bold; 
+                                           font-size: 0.95rem; font-family: 'Cinzel', serif; transition: all 0.3s ease;">
+                                ➕ Add to Route
+                            </button>
+                        </div>
+                        <button onclick="getDirections(${pandal.lat}, ${pandal.lng}, '${pandal.name}')" 
+                                style="width: 100%; background: linear-gradient(135deg, #D4AF37, #FFD700); 
+                                       color: #8B0000; border: 2px solid #8B0000; padding: 10px 20px; 
+                                       border-radius: 25px; cursor: pointer; font-weight: bold; 
+                                       font-size: 1rem; font-family: 'Cinzel', serif; transition: all 0.3s ease;">
+                            🗺️ Get Directions
+                        </button>
+                    </div>
+                `;
+
+                marker.bindPopup(popupContent, {
+                    maxWidth: 300,
+                    className: 'custom-popup'
+                });
+
+                if (isMainMap) {
+                    markers.push(marker);
+                }
+            });
+        }
+
+        function addCafeMarkers() {
+            cafesRestaurants.forEach((cafe, index) => {
+                // Create custom marker icon for cafes/restaurants
+                const cafeMarkerIcon = L.divIcon({
+                    className: 'custom-marker',
+                    html: `<div style="background: linear-gradient(135deg, #8B4513, #A0522D); border: 3px solid #D4AF37; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; color: #FFD700; font-weight: bold; font-size: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">${cafe.icon}</div>`,
+                    iconSize: [35, 35],
+                    iconAnchor: [17.5, 35],
+                    popupAnchor: [0, -35]
+                });
+
+                const marker = L.marker([cafe.lat, cafe.lng], { 
+                    icon: cafeMarkerIcon,
+                    title: cafe.name
+                }).addTo(map);
+
+                // Popup content for cafes
+                const popupContent = `
+                    <div style="padding: 10px; font-family: 'Cinzel', serif; min-width: 220px;">
+                        <div style="font-size: 2rem; text-align: center; margin-bottom: 10px;">${cafe.icon}</div>
+                        <h3 style="margin: 0 0 8px 0; color: #8B4513; font-size: 1.2rem; text-align: center; font-family: 'Cinzel', serif;">${cafe.name}</h3>
+                        <p style="margin: 0 0 8px 0; color: #666; text-align: center; font-family: 'Cormorant Garamond', serif;"><strong>📍 ${cafe.type}</strong></p>
+                        <p style="margin: 0 0 15px 0; color: #555; font-size: 0.9rem; font-family: 'Cormorant Garamond', serif; text-align: center;">${cafe.description}</p>
+                        <button onclick="getDirections(${cafe.lat}, ${cafe.lng}, '${cafe.name}')" 
+                                style="width: 100%; background: linear-gradient(135deg, #8B4513, #A0522D); 
+                                       color: white; border: 2px solid #D4AF37; padding: 10px 20px; 
+                                       border-radius: 25px; cursor: pointer; font-weight: bold; 
+                                       font-size: 1rem; font-family: 'Cinzel', serif; transition: all 0.3s ease;">
+                            🗺️ Get Directions
+                        </button>
+                    </div>
+                `;
+
+                marker.bindPopup(popupContent, {
+                    maxWidth: 280,
+                    className: 'custom-popup'
+                });
+
+                cafeMarkers.push(marker);
+            });
+        }
+
+        function toggleCafes() {
+            const btn = document.getElementById('cafeToggleBtn');
+            const textEl = document.getElementById('cafeToggleText');
+            
+            if (btn.classList.contains('active')) {
+                // Hide cafes
+                cafeMarkers.forEach(marker => map.removeLayer(marker));
+                btn.classList.remove('active');
+                textEl.textContent = 'Show Cafes & Restaurants';
+            } else {
+                // Show cafes
+                if (cafeMarkers.length === 0) {
+                    addCafeMarkers();
+                } else {
+                    cafeMarkers.forEach(marker => marker.addTo(map));
+                }
+                btn.classList.add('active');
+                textEl.textContent = 'Hide Cafes & Restaurants';
+            }
+        }
+
+        function populatePandalList() {
+            const container = document.getElementById('pandalsList');
+            container.innerHTML = '';
+
+            pandals.forEach((pandal, index) => {
+                const item = document.createElement('div');
+                item.className = 'pandal-item';
+                item.onclick = () => showPandalOnMap(index);
+                
+                item.innerHTML = `
+                    <div class="pandal-icon">${pandal.icon}</div>
+                    <div class="pandal-info">
+                        <div class="pandal-name">${pandal.name}</div>
+                        <div class="pandal-location">${pandal.location}</div>
+                        <div style="font-size: 0.95rem; color: #777; margin-top: 8px; font-style: italic;">
+                            ${pandal.description}
+                        </div>
+                    </div>
+                    <div style="color: #D4AF37; font-size: 2rem;">›</div>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+
+        function showPandalOnMap(index) {
+            // Add to navigation history (avoid duplicates)
+            const lastSection = navigationHistory[navigationHistory.length - 1];
+            if (lastSection !== 'map') {
+                navigationHistory.push('map');
+                updateBackButton();
+            }
+
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show map section
+            document.getElementById('map-section').classList.add('active');
+            
+            // Activate map tab
+            const mapTab = Array.from(document.querySelectorAll('.nav-tab')).find(tab => 
+                tab.textContent.includes('Map') || tab.onclick.toString().includes('map')
+            );
+            if (mapTab) {
+                mapTab.classList.add('active');
+            }
+            
+            // Show cafe toggle button
+            document.getElementById('cafeToggleBtn').classList.add('show');
+            
+            const pandal = pandals[index];
+            
+            // Remove previous arrow if exists
+            if (currentArrow) {
+                map.removeLayer(currentArrow);
+                currentArrow = null;
+            }
+
+            // Remove previous marker highlight
+            if (highlightedMarkerIndex !== null) {
+                const prevMarkerElement = markers[highlightedMarkerIndex].getElement();
+                if (prevMarkerElement) {
+                    const prevMarkerDiv = prevMarkerElement.querySelector('div');
+                    if (prevMarkerDiv) {
+                        prevMarkerDiv.classList.remove('marker-highlight');
+                        prevMarkerDiv.classList.remove('marker-bounce');
+                    }
+                }
+            }
+            
+            // Resize and set map view
+            setTimeout(() => {
+                map.invalidateSize();
+                map.setView([pandal.lat, pandal.lng], 17);
+                
+                // Add bounce animation and highlight to clicked marker
+                setTimeout(() => {
+                    const markerElement = markers[index].getElement();
+                    if (markerElement) {
+                        const markerDiv = markerElement.querySelector('div');
+                        if (markerDiv) {
+                            // Add bounce animation
+                            markerDiv.classList.add('marker-bounce');
+                            setTimeout(() => {
+                                markerDiv.classList.remove('marker-bounce');
+                                // Add continuous highlight
+                                markerDiv.classList.add('marker-highlight');
+                            }, 1800);
+                        }
+                    }
+
+                    // Create arrow pointer above the marker
+                    const arrowIcon = L.divIcon({
+                        className: 'arrow-pointer-container',
+                        html: '<div class="arrow-pointer"></div>',
+                        iconSize: [50, 60],
+                        iconAnchor: [25, 100]
+                    });
+
+                    currentArrow = L.marker([pandal.lat, pandal.lng], {
+                        icon: arrowIcon,
+                        interactive: false,
+                        zIndexOffset: 1000
+                    }).addTo(map);
+
+                    highlightedMarkerIndex = index;
+
+                    // Open popup after animations start
+                    markers[index].openPopup();
+                }, 300);
+            }, 100);
+        }
+
+        function clearHighlight() {
+            // Remove arrow
+            if (currentArrow) {
+                map.removeLayer(currentArrow);
+                currentArrow = null;
+            }
+
+            // Remove marker highlight
+            if (highlightedMarkerIndex !== null) {
+                const markerElement = markers[highlightedMarkerIndex].getElement();
+                if (markerElement) {
+                    const markerDiv = markerElement.querySelector('div');
+                    if (markerDiv) {
+                        markerDiv.classList.remove('marker-highlight');
+                        markerDiv.classList.remove('marker-bounce');
+                    }
+                }
+                highlightedMarkerIndex = null;
+            }
+        }
+
+        function getDirections(lat, lng, pandalName) {
+            // Store the destination
+            selectedPandalLocation = { lat, lng, name: pandalName || 'Selected Pandal' };
+            
+            // Update modal header with pandal name
+            document.getElementById('modalPandalName').textContent = `Directions to ${selectedPandalLocation.name}`;
+            
+            // Show the modal
+            document.getElementById('directionModal').classList.add('show');
+        }
+
+        function closeDirectionModal() {
+            document.getElementById('directionModal').classList.remove('show');
+        }
+
+        function showDirectionsInMap() {
+            closeDirectionModal();
+            
+            if (!selectedPandalLocation) return;
+            
+            // Navigate to map section
+            navigationHistory.push('map');
+            updateBackButton();
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById('map-section').classList.add('active');
+            
+            // Update map tab
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            const mapTab = Array.from(document.querySelectorAll('.nav-tab')).find(tab => 
+                tab.textContent.includes('Map')
+            );
+            if (mapTab) mapTab.classList.add('active');
+            
+            setTimeout(() => {
+                map.invalidateSize();
+                
+                if (userLocation) {
+                    // Clear previous routing control
+                    if (routingControl) {
+                        map.removeControl(routingControl);
+                        routingControl = null;
+                    }
+                    
+                    // Remove old user marker if exists
+                    if (userMarker) {
+                        map.removeLayer(userMarker);
+                        userMarker = null;
+                    }
+                    
+                    // Show loading notification
+                    const notification = document.getElementById('locationNotification');
+                    notification.innerHTML = '<div class="location-pulse"></div><span>Calculating route...</span>';
+                    notification.style.display = 'flex';
+                    
+                    // Create custom icons for routing
+                    const startIcon = L.divIcon({
+                        className: 'routing-start-icon',
+                        html: '<div style="background: #4285F4; border: 3px solid white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(66, 133, 244, 0.6); font-size: 14px;">📍</div>',
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    });
+                    
+                    const endIcon = L.divIcon({
+                        className: 'routing-end-icon',
+                        html: '<div style="background: #D4AF37; border: 3px solid white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(212, 175, 55, 0.6); font-size: 14px;">🕉️</div>',
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    });
+                    
+                    // Create routing control with Leaflet Routing Machine
+                    // Uses OSRM (Open Source Routing Machine) for road-based routing
+                    routingControl = L.Routing.control({
+                        waypoints: [
+                            L.latLng(userLocation.lat, userLocation.lng),
+                            L.latLng(selectedPandalLocation.lat, selectedPandalLocation.lng)
+                        ],
+                        router: L.Routing.osrmv1({
+                            serviceUrl: 'https://router.project-osrm.org/route/v1',
+                            profile: 'foot' // Walking directions
+                        }),
+                        lineOptions: {
+                            styles: [
+                                {
+                                    color: '#4285F4',
+                                    opacity: 0.8,
+                                    weight: 6
+                                }
+                            ],
+                            addWaypoints: false
+                        },
+                        createMarker: function(i, waypoint, n) {
+                            const marker = L.marker(waypoint.latLng, {
+                                icon: i === 0 ? startIcon : endIcon,
+                                draggable: false
+                            });
+                            
+                            if (i === 0) {
+                                marker.bindPopup('<b>📍 Your Location</b>');
+                            } else {
+                                marker.bindPopup(`<b>🕉️ ${selectedPandalLocation.name}</b>`);
+                            }
+                            
+                            return marker;
+                        },
+                        routeWhileDragging: false,
+                        showAlternatives: true,
+                        altLineOptions: {
+                            styles: [
+                                {
+                                    color: '#888888',
+                                    opacity: 0.5,
+                                    weight: 4
+                                }
+                            ]
+                        }
+                    }).addTo(map);
+                    
+                    // Handle routing events
+                    routingControl.on('routesfound', function(e) {
+                        const routes = e.routes;
+                        const summary = routes[0].summary;
+                        
+                        // Convert distance to km or meters
+                        const distanceKm = (summary.totalDistance / 1000).toFixed(2);
+                        const distanceM = Math.round(summary.totalDistance);
+                        const distanceText = distanceM < 1000 ? `${distanceM}m` : `${distanceKm}km`;
+                        
+                        // Convert time to minutes
+                        const timeMinutes = Math.round(summary.totalTime / 60);
+                        const timeText = timeMinutes < 60 ? `${timeMinutes} min` : `${Math.floor(timeMinutes/60)}h ${timeMinutes%60}min`;
+                        
+                        // Update notification with route info
+                        setTimeout(() => {
+                            notification.innerHTML = `<span>� ${distanceText} • ⏱️ ${timeText}</span>`;
+                            setTimeout(() => {
+                                notification.style.display = 'none';
+                            }, 5000);
+                        }, 500);
+                    });
+                    
+                    routingControl.on('routingerror', function(e) {
+                        console.error('Routing error:', e);
+                        notification.innerHTML = '<span>❌ Could not calculate route</span>';
+                        setTimeout(() => {
+                            notification.style.display = 'none';
+                        }, 3000);
+                    });
+                    
+                } else {
+                    // No user location, just center on destination
+                    map.setView([selectedPandalLocation.lat, selectedPandalLocation.lng], 16);
+                    
+                    const notification = document.getElementById('locationNotification');
+                    notification.innerHTML = '<span>⚠️ Location access needed for directions</span>';
+                    notification.style.display = 'flex';
+                    setTimeout(() => {
+                        notification.style.display = 'none';
+                    }, 3000);
+                }
+            }, 100);
+        }
+
+        function openInGoogleMaps() {
+            closeDirectionModal();
+            
+            if (!selectedPandalLocation) return;
+            
+            if (userLocation) {
+                const origin = `${userLocation.lat},${userLocation.lng}`;
+                const destination = `${selectedPandalLocation.lat},${selectedPandalLocation.lng}`;
+                const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=walking`;
+                window.open(url, '_blank');
+            } else {
+                // No user location, just open destination
+                const url = `https://www.google.com/maps/search/?api=1&query=${selectedPandalLocation.lat},${selectedPandalLocation.lng}`;
+                window.open(url, '_blank');
+            }
+        }
+
+        function centerOnUser() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const userLocation = [position.coords.latitude, position.coords.longitude];
+                        
+                        map.setView(userLocation, 16);
+                        
+                        // Remove old user marker
+                        if (userMarker) {
+                            map.removeLayer(userMarker);
+                        }
+                        
+                        // Add user location marker
+                        const userIcon = L.divIcon({
+                            className: 'user-marker',
+                            html: '<div style="background: #4285F4; border: 4px solid white; border-radius: 50%; width: 20px; height: 20px; box-shadow: 0 4px 15px rgba(66, 133, 244, 0.6);"></div>',
+                            iconSize: [20, 20],
+                            iconAnchor: [10, 10]
+                        });
+
+                        userMarker = L.marker(userLocation, { 
+                            icon: userIcon,
+                            title: "Your Location"
+                        }).addTo(map);
+
+                        userMarker.bindPopup("<strong>📍 Your Location</strong>").openPopup();
+                    },
+                    () => {
+                        alert("Unable to get your location. Please enable location services.");
+                    }
+                );
+            } else {
+                alert("Geolocation is not supported by your browser.");
+            }
+        }
+
+        // Fullscreen toggle
+        let isFullscreen = false;
+        function toggleFullscreen() {
+            const mapContainer = document.getElementById('mapContainer');
+            const fullscreenIcon = document.getElementById('fullscreenIcon');
+            
+            isFullscreen = !isFullscreen;
+            
+            if (isFullscreen) {
+                mapContainer.classList.add('fullscreen');
+                // Change icon to exit fullscreen
+                fullscreenIcon.innerHTML = '<path d="M5,16H8V19H10V14H5M16,8V5H14V10H19V8M8,8H5V10H10V5H8M19,19H16V16H14V21H19V19Z"/>';
+            } else {
+                mapContainer.classList.remove('fullscreen');
+                // Change icon back to enter fullscreen
+                fullscreenIcon.innerHTML = '<path d="M7,14H5v5h5v-2H7V14M5,10h2V7h3V5H5V10M17,17h-3v2h5v-5h-2V17M14,5v2h3v3h2V5H14Z"/>';
+            }
+            
+            // Resize map after transition
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 300);
+        }
+
+        // ESC key to exit fullscreen
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFullscreen) {
+                toggleFullscreen();
+            }
+        });
+
+        // Navigation functions
+        function showSection(sectionId, skipHistory = false) {
+            // Add to navigation history (avoid duplicates of the same section)
+            if (!skipHistory) {
+                const lastSection = navigationHistory[navigationHistory.length - 1];
+                if (lastSection !== sectionId) {
+                    navigationHistory.push(sectionId);
+                    updateBackButton();
+                }
+            }
+
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected section
+            const section = sectionId === 'map' ? 'map-section' : sectionId;
+            document.getElementById(section).classList.add('active');
+            
+            // Add active class to clicked tab
+            if (event && event.target) {
+                event.target.closest('.nav-tab').classList.add('active');
+            } else {
+                // Fallback: activate the correct tab based on sectionId
+                const tabs = document.querySelectorAll('.nav-tab');
+                tabs.forEach(tab => {
+                    const tabText = tab.textContent.toLowerCase();
+                    if ((sectionId === 'home' && tabText.includes('home')) ||
+                        (sectionId === 'pandals' && tabText.includes('pandals')) ||
+                        (sectionId === 'map' && tabText.includes('map')) ||
+                        (sectionId === 'schedule' && tabText.includes('schedule')) ||
+                        (sectionId === 'gallery' && tabText.includes('gallery')) ||
+                        (sectionId === 'about' && tabText.includes('about'))) {
+                        tab.classList.add('active');
+                    }
+                });
+            }
+            
+            // Resize maps when shown
+            setTimeout(() => {
+                if (sectionId === 'map') {
+                    map.invalidateSize();
+                    map.setView([22.856, 88.363], 15);
+                    // Show cafe toggle button
+                    document.getElementById('cafeToggleBtn').classList.add('show');
+                } else if (sectionId === 'home') {
+                    homeMap.invalidateSize();
+                    homeMap.setView([22.856, 88.363], 14);
+                    // Hide cafe toggle button
+                    document.getElementById('cafeToggleBtn').classList.remove('show');
+                } else {
+                    // Hide cafe toggle button on other sections
+                    document.getElementById('cafeToggleBtn').classList.remove('show');
+                }
+            }, 100);
+        }
+
+        function updateBackButton() {
+            const backButton = document.getElementById('backButton');
+            if (navigationHistory.length > 1) {
+                backButton.classList.add('show');
+            } else {
+                backButton.classList.remove('show');
+            }
+        }
+
+        function goBack() {
+            if (navigationHistory.length > 1) {
+                // Remove current page
+                navigationHistory.pop();
+                // Get previous page
+                const previousSection = navigationHistory[navigationHistory.length - 1];
+                
+                // Clear highlight when going back
+                clearHighlight();
+                
+                // Show previous section without adding to history
+                showSection(previousSection, true);
+                
+                // Update back button visibility
+                updateBackButton();
+                
+                // If we're back at the start (only 'home' in history), hide the button
+                if (navigationHistory.length <= 1) {
+                    const backButton = document.getElementById('backButton');
+                    backButton.classList.remove('show');
+                }
+            } else {
+                // No history left, hide button
+                const backButton = document.getElementById('backButton');
+                backButton.classList.remove('show');
+            }
+        }
+
+        // Route Planner Functions
+        function toggleRoutePlanner() {
+            const panel = document.getElementById('routePlannerPanel');
+            panel.classList.toggle('show');
+        }
+
+        function addToRoute(pandalIndex) {
+            const pandal = pandals[pandalIndex];
+            
+            // Check if already in route
+            const existingIndex = myRoute.findIndex(item => item.index === pandalIndex);
+            if (existingIndex !== -1) {
+                alert(`${pandal.name} is already in your route!`);
+                return;
+            }
+            
+            // Add to route
+            myRoute.push({
+                index: pandalIndex,
+                name: pandal.name,
+                lat: pandal.lat,
+                lng: pandal.lng,
+                icon: pandal.icon,
+                completed: false
+            });
+            
+            updateRouteDisplay();
+            
+            // Show notification
+            const notification = document.getElementById('locationNotification');
+            notification.innerHTML = `<span>✅ ${pandal.name} added to route!</span>`;
+            notification.style.background = 'linear-gradient(135deg, #28a745, #1e7e34)';
+            notification.style.display = 'flex';
+            setTimeout(() => {
+                notification.style.display = 'none';
+                notification.style.background = 'linear-gradient(135deg, #4285F4, #3367D6)';
+            }, 2000);
+        }
+
+        function removeFromRoute(routeIndex) {
+            myRoute.splice(routeIndex, 1);
+            updateRouteDisplay();
+        }
+
+        function markAsCompleted(routeIndex) {
+            myRoute[routeIndex].completed = true;
+            updateRouteDisplay();
+            
+            // Check if all completed
+            const allCompleted = myRoute.every(item => item.completed);
+            if (allCompleted && myRoute.length > 0) {
+                setTimeout(() => {
+                    alert('🎉 Congratulations! You have completed your entire route! May Goddess Jagadhatri bless you!');
+                }, 500);
+            }
+        }
+
+        function updateRouteDisplay() {
+            const routeList = document.getElementById('routeList');
+            const totalPandals = document.getElementById('totalPandals');
+            const completedPandals = document.getElementById('completedPandals');
+            const remainingPandals = document.getElementById('remainingPandals');
+            const routeBadge = document.getElementById('routeBadge');
+            const startBtn = document.getElementById('startRouteBtn');
+            const clearBtn = document.getElementById('clearRouteBtn');
+            
+            // Update stats
+            const completed = myRoute.filter(item => item.completed).length;
+            totalPandals.textContent = myRoute.length;
+            completedPandals.textContent = completed;
+            remainingPandals.textContent = myRoute.length - completed;
+            
+            // Update badge
+            if (myRoute.length > 0) {
+                routeBadge.textContent = myRoute.length;
+                routeBadge.style.display = 'flex';
+                startBtn.disabled = false;
+                clearBtn.disabled = false;
+            } else {
+                routeBadge.style.display = 'none';
+                startBtn.disabled = true;
+                clearBtn.disabled = true;
+            }
+            
+            // Update list
+            if (myRoute.length === 0) {
+                routeList.innerHTML = '<li style="text-align: center; padding: 40px 20px; color: #999; font-style: italic;">No pandals added yet. Click "Add to Route" on any pandal!</li>';
+                return;
+            }
+            
+            routeList.innerHTML = myRoute.map((item, index) => `
+                <li class="route-item ${item.completed ? 'completed' : ''} ${routeActive && index === currentRouteIndex ? 'active' : ''}">
+                    <div class="route-number">${index + 1}</div>
+                    <div class="route-info">
+                        <div class="route-name">${item.icon} ${item.name}</div>
+                        <div class="route-status">
+                            ${item.completed ? '✅ Completed' : 
+                              (routeActive && index === currentRouteIndex ? '📍 Current Destination' : '⏳ Pending')}
+                        </div>
+                    </div>
+                    <div class="route-actions">
+                        ${!item.completed ? `
+                            <button class="route-action-btn check" onclick="markAsCompleted(${index})" title="Mark as completed">
+                                ✓
+                            </button>
+                        ` : ''}
+                        <button class="route-action-btn" onclick="removeFromRoute(${index})" title="Remove from route">
+                            ✕
+                        </button>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        function startRoute() {
+            if (myRoute.length === 0) {
+                alert('Please add some pandals to your route first!');
+                return;
+            }
+            
+            if (!userLocation) {
+                alert('Please enable location services to start the route!');
+                trackUserLocation();
+                return;
+            }
+            
+            routeActive = true;
+            currentRouteIndex = 0;
+            
+            // Find first incomplete pandal
+            for (let i = 0; i < myRoute.length; i++) {
+                if (!myRoute[i].completed) {
+                    currentRouteIndex = i;
+                    break;
+                }
+            }
+            
+            updateRouteDisplay();
+            toggleRoutePlanner();
+            
+            // Show full route with all stops
+            showFullRoute();
+            
+            // Start monitoring location
+            watchUserProgress();
+        }
+
+        function showFullRoute() {
+            // Navigate to map section
+            navigationHistory.push('map');
+            updateBackButton();
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById('map-section').classList.add('active');
+            
+            // Update map tab
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            const mapTab = Array.from(document.querySelectorAll('.nav-tab')).find(tab => 
+                tab.textContent.includes('Map')
+            );
+            if (mapTab) mapTab.classList.add('active');
+            
+            setTimeout(() => {
+                map.invalidateSize();
+                
+                if (userLocation) {
+                    // Clear previous routing control
+                    if (routingControl) {
+                        map.removeControl(routingControl);
+                        routingControl = null;
+                    }
+                    
+                    // Remove old user marker if exists
+                    if (userMarker) {
+                        map.removeLayer(userMarker);
+                        userMarker = null;
+                    }
+                    
+                    // Show loading notification
+                    const notification = document.getElementById('locationNotification');
+                    notification.innerHTML = '<div class="location-pulse"></div><span>Calculating full route...</span>';
+                    notification.style.display = 'flex';
+                    
+                    // Build waypoints array: start with user location, then all route pandals
+                    const waypoints = [L.latLng(userLocation.lat, userLocation.lng)];
+                    myRoute.forEach(pandal => {
+                        if (!pandal.completed) {
+                            waypoints.push(L.latLng(pandal.lat, pandal.lng));
+                        }
+                    });
+                    
+                    // Create custom numbered icons for each stop
+                    const createNumberedIcon = (number, isStart = false, isCurrent = false) => {
+                        let bgColor = '#8B0000';
+                        let borderColor = '#D4AF37';
+                        let content = number;
+                        
+                        if (isStart) {
+                            bgColor = '#4285F4';
+                            borderColor = 'white';
+                            content = '📍';
+                        } else if (isCurrent) {
+                            bgColor = '#28a745';
+                            borderColor = '#FFD700';
+                        }
+                        
+                        return L.divIcon({
+                            className: 'routing-numbered-icon',
+                            html: `<div style="background: ${bgColor}; border: 3px solid ${borderColor}; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); font-size: ${isStart ? '16px' : '14px'}; color: white; font-weight: bold;">${content}</div>`,
+                            iconSize: [32, 32],
+                            iconAnchor: [16, 16]
+                        });
+                    };
+                    
+                    // Create routing control with all waypoints
+                    routingControl = L.Routing.control({
+                        waypoints: waypoints,
+                        router: L.Routing.osrmv1({
+                            serviceUrl: 'https://router.project-osrm.org/route/v1',
+                            profile: 'foot' // Walking directions
+                        }),
+                        lineOptions: {
+                            styles: [
+                                {
+                                    color: '#4285F4',
+                                    opacity: 0.8,
+                                    weight: 6
+                                }
+                            ],
+                            addWaypoints: false
+                        },
+                        createMarker: function(i, waypoint, n) {
+                            let markerIcon;
+                            let popupText;
+                            
+                            if (i === 0) {
+                                // Start point (user location)
+                                markerIcon = createNumberedIcon(i, true, false);
+                                popupText = '<b>📍 Your Location (Start)</b>';
+                            } else {
+                                // Pandal stops
+                                const pandalIndex = i - 1;
+                                const isCurrent = (currentRouteIndex === pandalIndex);
+                                markerIcon = createNumberedIcon(i, false, isCurrent);
+                                popupText = `<b>${i}. ${myRoute[pandalIndex].name}</b><br>${isCurrent ? '<span style="color: #28a745;">📍 Current Destination</span>' : ''}`;
+                            }
+                            
+                            const marker = L.marker(waypoint.latLng, {
+                                icon: markerIcon,
+                                draggable: false
+                            });
+                            
+                            marker.bindPopup(popupText);
+                            
+                            // Auto-open popup for current destination
+                            if (i > 0 && currentRouteIndex === i - 1) {
+                                setTimeout(() => marker.openPopup(), 1000);
+                            }
+                            
+                            return marker;
+                        },
+                        routeWhileDragging: false,
+                        showAlternatives: false
+                    }).addTo(map);
+                    
+                    // Handle routing events
+                    routingControl.on('routesfound', function(e) {
+                        const routes = e.routes;
+                        const summary = routes[0].summary;
+                        
+                        // Convert distance to km or meters
+                        const distanceKm = (summary.totalDistance / 1000).toFixed(2);
+                        const distanceM = Math.round(summary.totalDistance);
+                        const distanceText = distanceM < 1000 ? distanceM + 'm' : distanceKm + 'km';
+                        
+                        // Convert time to minutes
+                        const timeMinutes = Math.round(summary.totalTime / 60);
+                        
+                        // Update notification
+                        notification.innerHTML = `
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.2rem; margin-bottom: 5px;">🗺️ Route Ready!</div>
+                                <div style="font-size: 0.9rem;">
+                                    📏 Distance: ${distanceText} | ⏱️ Time: ~${timeMinutes} min<br>
+                                    📍 Stops: ${myRoute.filter(p => !p.completed).length} pandals<br>
+                                    <strong style="color: #FFD700;">Next: ${myRoute[currentRouteIndex].name}</strong>
+                                </div>
+                            </div>
+                        `;
+                        notification.style.background = 'linear-gradient(135deg, #28a745, #1e7e34)';
+                        notification.style.display = 'flex';
+                        notification.style.width = 'auto';
+                        notification.style.maxWidth = '90%';
+                    });
+                    
+                    routingControl.on('routingerror', function(e) {
+                        notification.innerHTML = '<span>⚠️ Could not calculate route</span>';
+                        notification.style.background = 'linear-gradient(135deg, #dc3545, #bd2130)';
+                        setTimeout(() => {
+                            notification.style.display = 'none';
+                        }, 3000);
+                    });
+                    
+                } else {
+                    alert('Unable to get your location. Please enable location services.');
+                }
+            }, 100);
+        }
+
+        function navigateToRoutePandal(index) {
+            const destination = myRoute[index];
+            selectedPandalLocation = {
+                lat: destination.lat,
+                lng: destination.lng,
+                name: destination.name
+            };
+            
+            // Show on map with directions
+            showDirectionsInMap();
+        }
+
+        let locationWatcher = null;
+        
+        function watchUserProgress() {
+            if (!navigator.geolocation) return;
+            
+            locationWatcher = navigator.geolocation.watchPosition(
+                (position) => {
+                    const currentLat = position.coords.latitude;
+                    const currentLng = position.coords.longitude;
+                    
+                    userLocation = { lat: currentLat, lng: currentLng };
+                    
+                    // Check distance to current destination
+                    if (routeActive && currentRouteIndex < myRoute.length) {
+                        const destination = myRoute[currentRouteIndex];
+                        if (!destination.completed) {
+                            const distance = calculateDistance(
+                                currentLat, currentLng,
+                                destination.lat, destination.lng
+                            );
+                            
+                            // If within 50 meters, show notification
+                            if (distance < 50) {
+                                showArrivalNotification(destination.name);
+                            }
+                        }
+                    }
+                },
+                (error) => {
+                    console.error('Location tracking error:', error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    maximumAge: 5000,
+                    timeout: 10000
+                }
+            );
+        }
+
+        function showArrivalNotification(pandalName) {
+            const notification = document.getElementById('locationNotification');
+            notification.innerHTML = `
+                <div style="text-align: center;">
+                    <div style="font-size: 1.5rem; margin-bottom: 5px;">🎯</div>
+                    <div><strong>You've arrived at ${pandalName}!</strong></div>
+                    <button onclick="completeCurrentAndNext()" style="margin-top: 10px; background: white; color: #4285F4; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold;">
+                        Mark as Completed ✓
+                    </button>
+                </div>
+            `;
+            notification.style.background = 'linear-gradient(135deg, #28a745, #1e7e34)';
+            notification.style.display = 'flex';
+            notification.style.width = 'auto';
+            notification.style.maxWidth = '90%';
+        }
+
+        function completeCurrentAndNext() {
+            if (currentRouteIndex < myRoute.length) {
+                markAsCompleted(currentRouteIndex);
+                
+                // Move to next incomplete pandal
+                let nextIndex = currentRouteIndex + 1;
+                let foundNext = false;
+                
+                for (let i = nextIndex; i < myRoute.length; i++) {
+                    if (!myRoute[i].completed) {
+                        currentRouteIndex = i;
+                        foundNext = true;
+                        break;
+                    }
+                }
+                
+                if (foundNext) {
+                    // Refresh the full route display with updated waypoints
+                    showFullRoute();
+                    
+                    const notification = document.getElementById('locationNotification');
+                    notification.innerHTML = `<span>✅ Completed! Navigating to next pandal...</span>`;
+                    notification.style.background = 'linear-gradient(135deg, #28a745, #1e7e34)';
+                    setTimeout(() => {
+                        // Will be updated by showFullRoute
+                    }, 2000);
+                } else {
+                    // All completed
+                    routeActive = false;
+                    if (locationWatcher) {
+                        navigator.geolocation.clearWatch(locationWatcher);
+                        locationWatcher = null;
+                    }
+                    
+                    // Clear routing control
+                    if (routingControl) {
+                        map.removeControl(routingControl);
+                        routingControl = null;
+                    }
+                    
+                    const notification = document.getElementById('locationNotification');
+                    notification.innerHTML = `
+                        <div style="text-align: center; font-size: 1.2rem;">
+                            <div style="font-size: 2rem; margin-bottom: 5px;">🎉</div>
+                            <strong>Route Completed!</strong><br>
+                            <span style="font-size: 0.9rem;">You've visited all pandals!</span>
+                        </div>
+                    `;
+                    notification.style.background = 'linear-gradient(135deg, #FFD700, #D4AF37)';
+                    notification.style.display = 'flex';
+                    
+                    setTimeout(() => {
+                        notification.style.display = 'none';
+                    }, 5000);
+                }
+            }
+        }
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; // Earth radius in meters
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = lat2 * Math.PI / 180;
+            const Δφ = (lat2 - lat1) * Math.PI / 180;
+            const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+            const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                    Math.cos(φ1) * Math.cos(φ2) *
+                    Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return R * c; // Distance in meters
+        }
+
+        function clearRoute() {
+            if (confirm('Are you sure you want to clear your entire route?')) {
+                myRoute = [];
+                routeActive = false;
+                currentRouteIndex = 0;
+                
+                if (locationWatcher) {
+                    navigator.geolocation.clearWatch(locationWatcher);
+                    locationWatcher = null;
+                }
+                
+                // Clear routing control from map
+                if (routingControl) {
+                    map.removeControl(routingControl);
+                    routingControl = null;
+                }
+                
+                // Hide any notifications
+                const notification = document.getElementById('locationNotification');
+                if (notification) {
+                    notification.style.display = 'none';
+                }
+                
+                updateRouteDisplay();
+            }
+        }
+
+        // Gallery data - You can add more photos here
+        const galleryData = [
+            {
+                src: "https://github.com/workarijit06/Pujodekho/blob/workarijit06-patch-1/DSC_0101.JPG?raw=true",
+                title: "Chandannagar glows with divine light during Jagadhatri Puja every year. ",
+                description: "The grand opening ceremony with traditional rituals",
+                year: "2024"
+            },
+            {
+                src: "https://github.com/workarijit06/Pujodekho/blob/workarijit06-patch-1/DSC_0392.JPG?raw=true",
+                title: "The entire city transforms into a grand exhibition of lights and art",
+                description: "Beautiful decoration of Goddess Jagadhatri",
+                year: "2024"
+            },
+            {
+                src: "https://github.com/workarijit06/Pujodekho/blob/workarijit06-patch-1/DSC_0367.JPG?raw=true",
+                title: "agadhatri Puja in Chandannagar is a unique blend of devotion and decoration.",
+                description: "Devotees gathered for the sacred evening aarti",
+                year: "2023"
+            },
+            {
+                src: "https://github.com/workarijit06/Pujodekho/blob/workarijit06-patch-1/DSC_0338.JPG?raw=true",
+                title: "The mesmerizing lighting themes attract visitors from across Bengal.",
+                description: "Traditional dance and music performances",
+                year: "2023"
+            },
+            {
+                src: "https://github.com/workarijit06/Pujodekho/blob/workarijit06-patch-1/DSC_0297.JPG?raw=true",
+                title: "Every pandal showcases creativity, culture, and community spirit",
+                description: "Magnificent theme-based decoration",
+                year: "2022"
+            },
+            {
+                src: "https://github.com/workarijit06/Pujodekho/blob/workarijit06-patch-1/DSC_0296.JPG?raw=true",
+                title: "The festival symbolizes victory of good over evil with unmatched grandeur.",
+                description: "Thousands of devotees visiting the pandal",
+                year: "2022"
+            }
+        ];
+
+        // Gallery Lightbox Functions
+        function openLightbox(index) {
+            const lightbox = document.getElementById('galleryLightbox');
+            const image = document.getElementById('lightboxImage');
+            const title = document.getElementById('lightboxTitle');
+            const desc = document.getElementById('lightboxDesc');
+            
+            const item = galleryData[index];
+            image.src = item.src;
+            image.alt = item.title;
+            title.textContent = item.title + ' (' + item.year + ')';
+            desc.textContent = item.description;
+            
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('galleryLightbox');
+            lightbox.classList.remove('active');
+            document.body.style.overflow = 'auto'; // Restore scrolling
+        }
+
+        // Close lightbox with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            }
+        });
+
+        // Initialize maps when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            
+            // Ensure back button is hidden on initial load
+            const backButton = document.getElementById('backButton');
+            backButton.classList.remove('show');
+            
+            // Initialize navigation history to home
+            navigationHistory = ['home'];
+            
+            // Automatically track user location on page load
+            trackUserLocation();
+        });
+
+        // Track user location and add marker on map
+        function trackUserLocation() {
+            const notification = document.getElementById('locationNotification');
+            const locationText = document.getElementById('locationText');
+            
+            if (navigator.geolocation) {
+                // Show tracking notification
+                notification.classList.add('show');
+                locationText.textContent = 'Tracking your location...';
+                
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const userLocationCoords = [position.coords.latitude, position.coords.longitude];
+                        
+                        // Store user location globally
+                        window.userLat = position.coords.latitude;
+                        window.userLng = position.coords.longitude;
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        
+                        // Add user marker to both maps
+                        addUserMarkerToMap(map, userLocationCoords);
+                        addUserMarkerToMap(homeMap, userLocationCoords);
+                        
+                        // Update notification
+                        locationText.textContent = '📍 Location tracked successfully!';
+                        
+                        // Hide notification after 3 seconds
+                        setTimeout(() => {
+                            notification.classList.remove('show');
+                        }, 3000);
+                        
+                        console.log('Your location tracked successfully!');
+                    },
+                    (error) => {
+                        // Update notification for error
+                        locationText.textContent = '⚠️ Location access denied';
+                        
+                        // Hide notification after 3 seconds
+                        setTimeout(() => {
+                            notification.classList.remove('show');
+                        }, 3000);
+                        
+                        console.log('Location access denied or unavailable');
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                // Show notification that geolocation is not supported
+                notification.classList.add('show');
+                locationText.textContent = '⚠️ Geolocation not supported';
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        // Add user location marker to map
+        function addUserMarkerToMap(mapInstance, location) {
+            // Remove old user marker if exists
+            if (userMarker && mapInstance.hasLayer(userMarker)) {
+                mapInstance.removeLayer(userMarker);
+            }
+
+            // Create custom user location icon
+            const userIcon = L.divIcon({
+                className: 'user-location-marker',
+                html: `<div style="background: #4285F4; border: 4px solid white; border-radius: 50%; width: 20px; height: 20px; box-shadow: 0 0 10px rgba(66, 133, 244, 0.8), 0 0 20px rgba(66, 133, 244, 0.4); position: relative;">
+                        <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: #4285F4; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">You are here</div>
+                       </div>`,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+
+            // Add user marker
+            const newUserMarker = L.marker(location, {
+                icon: userIcon,
+                zIndexOffset: 2000
+            }).addTo(mapInstance);
+
+            // Add pulsing circle around user location
+            L.circle(location, {
+                color: '#4285F4',
+                fillColor: '#4285F4',
+                fillOpacity: 0.15,
+                radius: 50,
+                weight: 2
+            }).addTo(mapInstance);
+
+            if (mapInstance === map) {
+                userMarker = newUserMarker;
+            }
+        }
+    </script>
+    
+    <!-- Leaflet JS for maps (No API Key Required!) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Leaflet Routing Machine JS -->
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+</body>
+</html>
